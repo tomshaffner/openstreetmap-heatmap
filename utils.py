@@ -22,7 +22,7 @@ def bmesh_to_object(bm, name='Object'):
     bm.free()
 
     obj = bpy.data.objects.new(name, mesh)
-    bpy.context.scene.objects.link(obj)
+    bpy.context.collection.objects.link(obj)
     bpy.context.scene.update()
 
     return obj
@@ -35,7 +35,7 @@ def track_to_constraint(obj, target):
 
 def create_target(origin=(0,0,0)):
     tar = bpy.data.objects.new('Target', None)
-    bpy.context.scene.objects.link(tar)
+    bpy.context.collection.objects.link(tar)
     tar.location = origin
 
     return tar
@@ -53,7 +53,7 @@ def create_camera(origin=(0,0,0), target=None, lens=35, clip_start=0.1, clip_end
     # Link object to scene
     obj = bpy.data.objects.new("CameraObj", camera)
     obj.location = origin
-    bpy.context.scene.objects.link(obj)
+    bpy.context.collection.objects.link(obj)
     bpy.context.scene.camera = obj # Make this the current camera
 
     if target: track_to_constraint(obj, target)
@@ -61,14 +61,28 @@ def create_camera(origin=(0,0,0), target=None, lens=35, clip_start=0.1, clip_end
 
 def create_lamp(origin, type='POINT', energy=1, color=(1,1,1), target=None):
     # Lamp types: 'POINT', 'SUN', 'SPOT', 'HEMI', 'AREA'
-    bpy.ops.object.add(type='LAMP', location=origin)
-    obj = bpy.context.object
-    obj.data.type = type
-    obj.data.energy = energy
-    obj.data.color = color
+    # create light datablock, set attributes
+    light_data = bpy.data.lights.new(name="light_2.80", type=type)
+    light_data.energy = energy
 
-    if target: track_to_constraint(obj, target)
-    return obj
+    # create new object with our light datablock
+    light_object = bpy.data.objects.new(name="light_2.80", object_data=light_data)
+
+    # link light object
+    bpy.context.collection.objects.link(light_object)
+
+    # make it active
+    bpy.context.view_layer.objects.active = light_object
+
+    #change location
+    light_object.location = origin
+
+    # change color
+    # TODO update thiso to account for new color approach https://docs.blender.org/api/current/bpy.types.Object.html#bpy.types.Object.color
+    # light_object.color=color
+
+    if target: track_to_constraint(light_object, target)
+    return light_object
 
 def render_to_folder(render_folder='render', render_name='render', res_x=800, res_y=800, res_percentage=100, animation=False, frame_end=None, render_opengl=False):
     print('renderToFolder called')

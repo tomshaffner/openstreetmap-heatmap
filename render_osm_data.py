@@ -113,30 +113,29 @@ def heatmap_barplot(grid, h=4, width=10, bar_scale=0.9, num_colors=10, colormap=
 
 if __name__ == '__main__':
     # Settings
-    iso_a2, tag_key, tag_value = 'GB', 'amenity', 'pub'
+    iso_a2, tag_key, tag_value = 'DE', 'Station', 'total_flexfare'
     #res_x, res_y = 768, 432
     #res_x, res_y =  600, 600
     #res_x, res_y =  640, 480
     #res_x, res_y =  640, 360
     res_x, res_y = 1280, 720
 
-    animation = False
+    animation = True
     #r, camera_z = 10, 7
     r, camera_z = 12, 10
     num_frames = 40
 
-    #camera_position, target_position = (3, -10, 8), (0.3, -1.8, 0.5)  # DE
+    camera_position, target_position = (3, -10, 8), (0.3, -1.8, 0.5)  # DE
     #camera_position, target_position = (3, -10, 8), (0.3, 0.0, 0.5)  # AT
     #camera_position, target_position = (3, -10, 8), (-0.1, -0.4, 1.0)  # CH
-    camera_position, target_position = (-2, -10, 8), (0.0, -2.6, 1.0)  # GB
+    #camera_position, target_position = (-2, -10, 8), (0.0, -2.6, 1.0)  # GB
 
     #camera_type, ortho_scale = 'ORTHO', 15
     camera_type, ortho_scale = 'PERSP', 18
     render_idx = 0
 
-
     # Remove all elements in scene
-    bpy.ops.object.select_by_layer()
+    bpy.ops.object.select_all()
     bpy.ops.object.delete(use_global=False)
 
     # Create scene
@@ -147,14 +146,15 @@ if __name__ == '__main__':
     sun = utils.create_lamp((-5, 5, 10), 'SUN', target=target)
 
     # Set background color
-    bpy.context.scene.world.horizon_color = (0.7, 0.7, 0.7)
+    bpy.context.scene.world.color = (0.7, 0.7, 0.7)
 
     # Ambient occlusion
     bpy.context.scene.world.light_settings.use_ambient_occlusion = True
-    bpy.context.scene.world.light_settings.samples = 8
+    # TODO update below line
+    #bpy.context.scene.world.light_settings.samples = 8
 
     # Load points from existing geojson file or load them with Overpass API
-    filepath = 'data/points_{}_{}_{}.json'.format(iso_a2, tag_key, tag_value)
+    filepath = 'total_flexfare.json'.format(iso_a2, tag_key, tag_value)
     if os.path.exists(filepath):
         points, names = utils_osm.load_points(filepath)
     else:
